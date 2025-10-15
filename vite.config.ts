@@ -22,7 +22,7 @@ function emitModulePackageFile(): Plugin {
 export default defineConfig(() => {
     if (isSamples) {
         return {
-            base: 'https://4eb0da.github.io/war3-model/dist/',
+            base: './',  // 改为相对路径，支持本地访问
             build: {
                 outDir: resolve(import.meta.dirname, 'docs/dist'),
                 rollupOptions: {

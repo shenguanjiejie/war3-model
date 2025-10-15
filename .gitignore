@@ -5,3 +5,15 @@ node_modules
 *.js.map
 *.d.ts
 !third_party/decoder.js
+
+# 测试文件
+*.mdx
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+
+# Python 缓存
+__pycache__
+*.pyc
+*.pyo

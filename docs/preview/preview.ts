@@ -311,16 +311,15 @@ function tick(timestamp: number) {
     drawScene();
 }
 
-function loadTexture(src: string, textureName: string) {
-    const img = new Image();
-
-    img.onload = () => {
-        modelRenderer.setTextureImage(textureName, img);
-
-        handleLoadedTexture();
-    };
-    img.src = src;
-}
+// loadTexture 函数已被 loadTextureFromServer 替代
+// function loadTexture(src: string, textureName: string) {
+//     const img = new Image();
+//     img.onload = () => {
+//         modelRenderer.setTextureImage(textureName, img);
+//         handleLoadedTexture();
+//     };
+//     img.src = src;
+// }
 
 let started = false;
 function handleLoadedTexture(): void {
@@ -900,6 +899,43 @@ function initDragDrop() {
 
 
 
+    // 自动从服务器查找并加载纹理
+    async function loadTextureFromServer(textureName: string): Promise<void> {
+        try {
+            // 查找纹理文件路径
+            const response = await fetch(`/api/find-texture/${encodeURIComponent(textureName)}`);
+            if (!response.ok) {
+                console.warn(`纹理未找到: ${textureName}`);
+                return;
+            }
+
+            const data = await response.json();
+            const texturePath = data.path;
+
+            console.log(`✅ 找到纹理: ${textureName} -> ${texturePath}`);
+
+            // 加载纹理文件
+            const textureResponse = await fetch(`/mpq/${texturePath}`);
+            if (!textureResponse.ok) {
+                console.error(`加载纹理失败: ${texturePath}`);
+                return;
+            }
+
+            const arrayBuffer = await textureResponse.arrayBuffer();
+
+            // 解码 BLP 纹理
+            const blp = decode(arrayBuffer);
+            modelRenderer.setTextureImageData(
+                textureName,
+                blp.mipmaps.map((_mipmap, i) => getImageData(blp, i))
+            );
+
+            console.log(`✅ 纹理加载成功: ${textureName}`);
+        } catch (err) {
+            console.error(`加载纹理出错 ${textureName}:`, err);
+        }
+    }
+
     function setTextures(textures) {
         const promises: Promise<void>[] = [];
 
@@ -907,9 +943,12 @@ function initDragDrop() {
             if (texture.Image) {
                 const cleanupName = texture.Image.replace(CLEANUP_NAME_REGEXP, '$1').toLowerCase();
                 if (cleanupName in textures) {
+                    // 用户拖入的纹理优先
                     promises.push(dropTexture(textures[cleanupName], texture.Image));
-                } else if (!gpuDevice) {
-                    loadTexture('empty.png', texture.Image);
+                } else {
+                    // 自动从服务器查找
+                    console.log(`🔍 自动查找纹理: ${texture.Image}`);
+                    promises.push(loadTextureFromServer(texture.Image));
                 }
             }
         }

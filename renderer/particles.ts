@@ -72,6 +72,7 @@ interface ParticleEmitterWrapper {
 
 const DISCARD_ALPHA_KEY_LEVEL = 0.83;
 const DISCARD_MODULATE_LEVEL = 0.01;
+const MULTISAMPLE = 4;
 
 export class ParticlesController {
     private gl: WebGL2RenderingContext | WebGLRenderingContext;
@@ -324,7 +325,10 @@ export class ParticlesController {
                         blend
                     }]
                 },
-                depthStencil: depth
+                depthStencil: depth,
+                multisample: {
+                    count: MULTISAMPLE
+                }
             });
         };
 
