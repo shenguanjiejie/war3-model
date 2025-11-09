@@ -23,6 +23,19 @@ export default defineConfig(() => {
     if (isSamples) {
         return {
             base: './',  // 改为相对路径，支持本地访问
+            // 配置代理：将纹理API请求转发到Python服务器（port 8081）
+            server: {
+                proxy: {
+                    '/api': {
+                        target: 'http://localhost:8081',
+                        changeOrigin: true
+                    },
+                    '/mpq': {
+                        target: 'http://localhost:8081',
+                        changeOrigin: true
+                    }
+                }
+            },
             build: {
                 outDir: resolve(import.meta.dirname, 'docs/dist'),
                 rollupOptions: {

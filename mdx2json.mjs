@@ -26,7 +26,9 @@ function convertMdxToJson(inputPath, outputPath) {
 
     if (ext === '.mdx') {
         console.log('[MDX2JSON] 解析MDX格式...');
-        model = parseMDX(buffer.buffer);
+        // ✅ 修复：使用new Uint8Array(buffer).buffer确保ArrayBuffer大小精确
+        // Node.js的buffer.buffer可能包含额外的预分配空间，导致parseMDX解析失败
+        model = parseMDX(new Uint8Array(buffer).buffer);
     } else if (ext === '.mdl') {
         console.log('[MDX2JSON] 解析MDL格式...');
         const text = buffer.toString('utf-8');
