@@ -90,6 +90,7 @@ function getFrameFlagsName(flags) {
 
 /**
  * 递归转换TypedArray为普通数组（JSON序列化兼容）
+ * 保持War3原始数据的完整性，不修改值的语义
  */
 function convertTypedArrays(obj) {
     if (obj === null || obj === undefined) {
