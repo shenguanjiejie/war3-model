@@ -8,6 +8,7 @@ export default tseslint.config(
       'docs/dist/',
       'node_modules/',
       '*.js',
+      '*.mjs',
       'third_party/decoder.js',
     ],
   },
