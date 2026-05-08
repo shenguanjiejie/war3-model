@@ -4,18 +4,19 @@
 		"forceConsistentCasingInFileNames": true,
 		"isolatedModules": true,
         "module": "esnext",
-        "target": "es5",
         // "allowJs": true,
         "resolveJsonModule": true,
         "esModuleInterop": true,
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
 		"noEmitOnError": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
         "pretty": true,
         "noEmit": true,
         "lib": ["DOM"],
-        "skipLibCheck": true
+        "types": ["@webgpu/types"],
+        "skipLibCheck": true,
+        "strict": false
     },
     "exclude": [
         "node_modules",

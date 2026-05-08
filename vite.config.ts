@@ -1,5 +1,6 @@
 import { resolve } from 'node:path';
 import { defineConfig, LibraryFormats, type Plugin } from 'vite';
+import dts from 'vite-plugin-dts';
 import pkg from './package.json';
 
 const isSamples = Boolean(process.env.SAMPLES);
@@ -10,12 +11,43 @@ const banner = `/*!
 	Released under the MIT License.
 */`;
 
-function emitModulePackageFile(): Plugin {
+function emitBrowserDts(): Plugin {
     return {
         generateBundle() {
-            this.emitFile({ fileName: 'package.json', source: `{"type":"module"}`, type: 'asset' });
+            this.emitFile({
+                fileName: 'war3-model.browser.d.ts',
+                source: `import type {
+    model,
+    parseMDX,
+    generateMDX,
+    parseMDL,
+    generateMDL,
+    blp,
+    decodeBLP,
+    getBLPImageData,
+    ModelRenderer
+} from './war3-model.d.ts';
+
+declare global {
+    interface Window {
+        war3model: {
+            model: typeof model;
+            parseMDX: typeof parseMDX;
+            generateMDX: typeof generateMDX;
+            parseMDL: typeof parseMDL;
+            generateMDL: typeof generateMDL;
+            blp: typeof blp;
+            decodeBLP: typeof decodeBLP;
+            getBLPImageData: typeof getBLPImageData;
+            ModelRenderer: typeof ModelRenderer;
+        };
+    }
+}
+`,
+                type: 'asset'
+            });
         },
-        name: 'emit-module-package-file'
+        name: 'emit-browser-dts'
     };
 }
 
@@ -36,9 +68,10 @@ export default defineConfig(() => {
                     }
                 }
             },
+            // base: 'https://4eb0da.ru/war3-model/dist/',
             build: {
                 outDir: resolve(import.meta.dirname, 'docs/dist'),
-                rollupOptions: {
+                rolldownOptions: {
                     input: {
                         convert: resolve(import.meta.dirname, 'docs/convert/convert.html'),
                         decodeblp: resolve(import.meta.dirname, 'docs/decodeblp/decodeblp.html'),
@@ -55,7 +88,10 @@ export default defineConfig(() => {
 
     return {
         plugins: [
-            emitModulePackageFile(),
+            emitBrowserDts(),
+            dts({
+                rollupTypes: true,
+            }),
         ],
         build: {
             sourcemap: true,
